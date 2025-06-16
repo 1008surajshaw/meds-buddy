@@ -1,4 +1,3 @@
-"use client"
 
 import type React from "react"
 import { useState } from "react"
@@ -7,7 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, User, Users, Mail, CheckCircle } from "lucide-react"
+import { Loader2, User, Users, Mail, CheckCircle, Eye, EyeOff, AlertCircle } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import type { UserRole } from "@/types/type"
 import { useAuth } from "@/context/AuthContext"
 
@@ -19,6 +20,14 @@ interface AuthModalProps {
 
 type AuthMode = "signin" | "signup" | "email-sent"
 
+interface FormErrors {
+  email?: string
+  password?: string
+  name?: string
+  confirmPassword?: string
+  general?: string
+}
+
 export const AuthModal = ({ open, onOpenChange, defaultRole = "patient" }: AuthModalProps) => {
   const [mode, setMode] = useState<AuthMode>("signin")
   const [role, setRole] = useState<UserRole>(defaultRole)
@@ -29,7 +38,9 @@ export const AuthModal = ({ open, onOpenChange, defaultRole = "patient" }: AuthM
     confirmPassword: "",
   })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const { signIn, signUp } = useAuth()
 
@@ -40,7 +51,7 @@ export const AuthModal = ({ open, onOpenChange, defaultRole = "patient" }: AuthM
       name: "",
       confirmPassword: "",
     })
-    setError(null)
+    setErrors({})
   }
 
   const handleModeSwitch = (newMode: AuthMode) => {
@@ -48,47 +59,194 @@ export const AuthModal = ({ open, onOpenChange, defaultRole = "patient" }: AuthM
     resetForm()
   }
 
+  const validateEmail = (email: string): string | undefined => {
+    if (!email.trim()) {
+      return "Email is required"
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return "Please enter a valid email address"
+    }
+    return undefined
+  }
+
+  const validatePassword = (password: string): string | undefined => {
+    if (!password) {
+      return "Password is required"
+    }
+    if (password.length < 6) {
+      return "Password must be at least 6 characters long"
+    }
+    if (password.length > 128) {
+      return "Password must be less than 128 characters"
+    }
+    
+    return undefined
+  }
+
+  const validateName = (name: string): string | undefined => {
+    if (!name.trim()) {
+      return "Full name is required"
+    }
+    if (name.trim().length < 2) {
+      return "Name must be at least 2 characters long"
+    }
+    if (name.trim().length > 50) {
+      return "Name must be less than 50 characters"
+    }
+    return undefined
+  }
+
+  const validateConfirmPassword = (password: string, confirmPassword: string): string | undefined => {
+    if (!confirmPassword) {
+      return "Please confirm your password"
+    }
+    if (password !== confirmPassword) {
+      return "Passwords do not match"
+    }
+    return undefined
+  }
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {}
+
+    // Email validation
+    const emailError = validateEmail(formData.email)
+    if (emailError) newErrors.email = emailError
+
+    // Password validation
+    const passwordError = validatePassword(formData.password)
+    if (passwordError) newErrors.password = passwordError
+
+    // Name validation (only for signup)
+    if (mode === "signup") {
+      const nameError = validateName(formData.name)
+      if (nameError) newErrors.name = nameError
+
+      // Confirm password validation
+      const confirmPasswordError = validateConfirmPassword(formData.password, formData.confirmPassword)
+      if (confirmPasswordError) newErrors.confirmPassword = confirmPasswordError
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
+    setErrors({})
+
+    // Validate form
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form", {
+        description: "Check all required fields and try again",
+      })
+      return
+    }
+
     setLoading(true)
 
     try {
       if (mode === "signup") {
-        if (formData.password !== formData.confirmPassword) {
-          throw new Error("Passwords do not match")
-        }
-        if (formData.name.trim().length < 2) {
-          throw new Error("Name must be at least 2 characters long")
-        }
-        if (formData.password.length < 6) {
-          throw new Error("Password must be at least 6 characters long")
-        }
-
         await signUp(formData.email, formData.password, formData.name.trim(), role)
 
-        // If we get here without error, either the user is signed in or needs email confirmation
-        // The hook will handle the appropriate state
+        toast.success("Account created successfully!", {
+          description: `Welcome to MedsBuddy, ${formData.name}!`,
+        })
+
         onOpenChange(false)
         resetForm()
       } else {
         await signIn(formData.email, formData.password)
+
+        toast.success("Welcome back!", {
+          description: "You have successfully signed in to your account",
+        })
+
         onOpenChange(false)
         resetForm()
       }
     } catch (error: any) {
-      if (error.message.includes("email")) {
+      console.error("Auth error:", error)
+
+      // Handle specific error messages
+      let errorMessage = error.message || "An unexpected error occurred"
+      let toastTitle = "Authentication Error"
+
+      if (error.message.includes("Invalid login credentials") || error.message.includes("Invalid email or password")) {
+        errorMessage = "Invalid email or password. Please check your credentials and try again."
+        toastTitle = "Wrong Password"
+
+        toast.error(toastTitle, {
+          description: "The email or password you entered is incorrect",
+        })
+
+        setErrors({ general: errorMessage })
+      } else if (error.message.includes("Email not confirmed")) {
         setMode("email-sent")
+
+        toast.info("Email confirmation required", {
+          description: "Please check your email and click the confirmation link",
+        })
+        return
+      } else if (error.message.includes("User already registered")) {
+        errorMessage = "An account with this email already exists. Please sign in instead."
+
+        toast.error("Account Already Exists", {
+          description: "Try signing in instead or use a different email address",
+        })
+
+        setErrors({ general: errorMessage })
+      } else if (error.message.includes("Password should be at least 6 characters")) {
+        toast.error("Password Too Short", {
+          description: "Password must be at least 6 characters long",
+        })
+
+        setErrors({ password: "Password must be at least 6 characters long" })
+        return
+      } else if (error.message.includes("Unable to validate email address")) {
+        toast.error("Invalid Email", {
+          description: "Please enter a valid email address",
+        })
+
+        setErrors({ email: "Please enter a valid email address" })
+        return
+      } else if (error.message.includes("email")) {
+        setMode("email-sent")
+
+        toast.info("Check Your Email", {
+          description: "We've sent you a confirmation link",
+        })
+        return
+      } else if (error.message.includes("network") || error.message.includes("fetch")) {
+        toast.error("Connection Error", {
+          description: "Please check your internet connection and try again",
+        })
       } else {
-        setError(error.message)
+        toast.error("Something went wrong", {
+          description: errorMessage,
+        })
       }
+
+      setErrors({ general: errorMessage })
     } finally {
       setLoading(false)
     }
   }
 
   const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+    const value = e.target.value
+    setFormData((prev) => ({ ...prev, [field]: value }))
+
+    // Clear field-specific error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }))
+    }
+
+    // Clear general error when user makes changes
+    if (errors.general) {
+      setErrors((prev) => ({ ...prev, general: undefined }))
+    }
   }
 
   if (mode === "email-sent") {
@@ -140,15 +298,21 @@ export const AuthModal = ({ open, onOpenChange, defaultRole = "patient" }: AuthM
           {mode === "signup" && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">Full Name *</Label>
                 <Input
                   id="name"
                   type="text"
                   placeholder="Enter your full name"
                   value={formData.name}
                   onChange={handleInputChange("name")}
-                  required
+                  className={errors.name ? "border-red-500 focus:border-red-500" : ""}
                 />
+                {errors.name && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.name}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -180,46 +344,100 @@ export const AuthModal = ({ open, onOpenChange, defaultRole = "patient" }: AuthM
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email Address *</Label>
             <Input
               id="email"
               type="email"
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleInputChange("email")}
-              required
+              className={errors.email ? "border-red-500 focus:border-red-500" : ""}
             />
+            {errors.email && (
+              <p className="text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {errors.email}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleInputChange("password")}
-              required
-            />
+            <Label htmlFor="password">Password *</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleInputChange("password")}
+                className={errors.password ? "border-red-500 focus:border-red-500 pr-10" : "pr-10"}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-400" />
+                )}
+              </Button>
+            </div>
+            {errors.password && (
+              <p className="text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {errors.password}
+              </p>
+            )}
+            {mode === "signup" && !errors.password && (
+              <p className="text-xs text-muted-foreground">
+                Password must be at least 6 characters and contain at least one letter
+              </p>
+            )}
           </div>
 
           {mode === "signup" && (
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange("confirmPassword")}
-                required
-              />
+              <Label htmlFor="confirmPassword">Confirm Password *</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange("confirmPassword")}
+                  className={errors.confirmPassword ? "border-red-500 focus:border-red-500 pr-10" : "pr-10"}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-400" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-400" />
+                  )}
+                </Button>
+              </div>
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.confirmPassword}
+                </p>
+              )}
             </div>
           )}
 
-          {error && (
+          {errors.general && (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{errors.general}</AlertDescription>
             </Alert>
           )}
 

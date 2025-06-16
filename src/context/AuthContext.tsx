@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/utils/supabase";
 import type { UserProfile, UserRole } from "@/types/type";
+import { toast } from "sonner"
+
 
 interface AuthState {
   user: User | null;
@@ -208,7 +210,15 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
         loading: false,
         error: null,
       });
+
+      toast.success("Signed out successfully", {
+        description: "You have been logged out of your account",
+      })
+
     } catch (error: any) {
+      toast.error("Error signing out", {
+        description: error.message || "Please try again",
+      })
       setState((prev) => ({ ...prev, error: error.message, loading: false }));
       throw error;
     }
