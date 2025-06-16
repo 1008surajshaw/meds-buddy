@@ -42,14 +42,13 @@ export const PatientSearch = ({
     [onSearch, onClearSearch],
   )
 
-  // Debounce search with proper cleanup
   useEffect(() => {
     const timer = setTimeout(() => {
       debouncedSearch(searchTerm)
     }, 300)
 
     return () => clearTimeout(timer)
-  }, [searchTerm]) // Only depend on searchTerm, not the functions
+  }, [searchTerm])
 
   const handleAddPatient = async (patientId: string, patientName: string) => {
     try {
@@ -77,7 +76,7 @@ export const PatientSearch = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setSearchTerm(value)
-    setError(null) // Clear any previous errors when user starts typing
+    setError(null)
   }
 
   return (

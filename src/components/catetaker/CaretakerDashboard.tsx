@@ -5,15 +5,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft } from "lucide-react"
 import { useCaretakerPatients } from "@/hooks/use-caretaker-patients"
 import { useMedications } from "@/hooks/use-medications"
-import { CaretakerHeader } from "./caretaker-header"
-import { PatientSelector } from "./patient-selector"
-import { PatientOverview } from "./patient-overview"
-import { MedicationGrid } from "@/components/medications/medication-grid"
-import { PatientActivity } from "./patient-activity"
-import { PatientCalendar } from "./patient-calender"
-import { AdherenceDashboard } from "./adherence-dashboard"
+import { CaretakerHeader } from "./caretakerHeader"
+import { PatientSelector } from "./patientSelector"
+import { PatientOverview } from "./patientOverview"
+import { MedicationGrid } from "@/components/medications/medicationGrid"
+import { PatientActivity } from "./patientActivity"
+import { PatientCalendar } from "./patientCalender"
+import { AdherenceDashboard } from "./adherenceDashboard"
 import NotificationSettings from "../NotificationSettings"
-import { LoadingSpinner } from "@/components/shared/loading-spinner"
+import { LoadingSpinner } from "@/components/shared/loadingSpinner"
 import { useAuth } from "@/context/AuthContext"
 
 const CaretakerDashboard = () => {
@@ -34,7 +34,6 @@ const CaretakerDashboard = () => {
     clearSearch,
   } = useCaretakerPatients(profile?.user_id || null)
 
-  // Get medications hook for the selected patient
   const {
     medications: patientMedications,
     loading: medicationsLoading,
@@ -76,7 +75,6 @@ const CaretakerDashboard = () => {
     return <LoadingSpinner size="lg" text="Loading caretaker dashboard..." />
   }
 
-  // Show patient selector if no patient is selected
   if (!selectedPatientId) {
     return (
       <div className="space-y-6">
@@ -97,7 +95,6 @@ const CaretakerDashboard = () => {
           onClearSearch={clearSearch}
         />
 
-        {/* Show overall adherence dashboard */}
         {patients.length > 0 && <AdherenceDashboard patientIds={patients.map((p) => p.user_id)} />}
       </div>
     )

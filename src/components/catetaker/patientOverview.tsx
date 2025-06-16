@@ -2,10 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { CalendarIcon, Mail, Bell, TrendingUp, TrendingDown, Target } from "lucide-react"
+import { CalendarIcon, Mail, Bell} from "lucide-react"
 import { format } from "date-fns"
-import { AdherenceDashboard } from "./adherence-dashboard"
-import { StatCard } from "@/components/shared/stat-card"
+import { AdherenceDashboard } from "./adherenceDashboard"
 import { formatTime } from "@/utils/medication-helpers"
 import type { PatientWithStats, Medication, UserProfile } from "@/types/type"
 
@@ -16,7 +15,6 @@ interface PatientOverviewProps {
 }
 
 export const PatientOverview = ({ patient, medications, profile }: PatientOverviewProps) => {
-  const todayStr = format(new Date(), "yyyy-MM-dd")
 
   return (
     <div className="space-y-6">
@@ -107,7 +105,7 @@ export const PatientOverview = ({ patient, medications, profile }: PatientOvervi
         </CardContent>
       </Card>
 
-      <AdherenceDashboard patientIds={[patient.user_id]} />
+      {/* <AdherenceDashboard patientIds={[patient.user_id]} /> */}
     </div>
   )
 }

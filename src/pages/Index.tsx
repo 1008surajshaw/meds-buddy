@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react"
-import { AuthModal } from "@/components/auth/auth-modal"
+import { AuthModal } from "@/components/auth/authModal"
 import { RoleSelector } from "@/components/role-selector"
 import PatientDashboard from "@/components/patients/PatientDashboard"
 import CaretakerDashboard from "@/components/catetaker/CaretakerDashboard"

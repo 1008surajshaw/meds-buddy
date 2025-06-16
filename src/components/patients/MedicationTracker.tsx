@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Check, ImageIcon, Camera, Clock, Plus, Pill, Bell } from "lucide-react"
 import { format } from "date-fns"
-import { MedicationForm } from "../medications/medication-form"
+import { MedicationForm } from "../medications/medicationForm"
 import { useMedicationActivity, type DailyMedicationStatus } from "@/hooks/use-medication-activity"
 import type { Medication, MedicationFormData } from "@/hooks/use-medications"
 

@@ -3,8 +3,8 @@ import { Badge } from "@/components/ui/badge"
 import { Check, AlertTriangle, Camera } from "lucide-react"
 import { format } from "date-fns"
 import { usePatientData } from "@/hooks/use-patient-data"
-import { LoadingSpinner } from "@/components/shared/loading-spinner"
-import { EmptyState } from "@/components/shared/empty-state"
+import { LoadingSpinner } from "@/components/shared/loadingSpinner"
+import { EmptyState } from "@/components/shared/emptyState"
 
 interface PatientActivityProps {
   patientId: string

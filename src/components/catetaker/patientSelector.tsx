@@ -8,8 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Users, Trash2, TrendingUp, Calendar, Loader2, Search, Pill, AlertTriangle } from "lucide-react"
 import type { PatientWithStats } from "@/hooks/use-caretaker-patients"
-import { PatientSearch } from "./patient-search"
-import { AdherenceDashboard } from "./adherence-dashboard"
+import { PatientSearch } from "./patientSearch"
+import { AdherenceDashboard } from "./adherenceDashboard"
 
 interface PatientSelectorProps {
   patients: PatientWithStats[]
