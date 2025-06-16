@@ -18,7 +18,6 @@ export const useMedicationCalendar = (userId: string | null, medications: any[])
       try {
         setLoading(true)
 
-        // Get the earliest medication creation date
         const earliestMedDate = medications.reduce((earliest, med) => {
           const medDate = new Date(med.created_at)
           return medDate < earliest ? medDate : earliest

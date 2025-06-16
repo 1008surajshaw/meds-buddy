@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/utils/supabase";
-import type { UserProfile, UserRole } from "@/types/types";
+import type { UserProfile, UserRole } from "@/types/type";
 
 interface AuthState {
   user: User | null;
@@ -72,7 +72,6 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
     }
   };
 
-  // Create profile from metadata
   const createProfileFromMetadata = async (user: User) => {
     try {
       const name = user.user_metadata?.name || user.email?.split("@")[0] || "User";
@@ -85,12 +84,10 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
     }
   };
 
-  // Handle session change
   const handleSessionUpdate = async (session: any) => {
     if (session?.user) {
       let profile = await fetchUserProfile(session.user.id);
 
-      // If no profile exists and we have metadata, create one
       if (
         !profile &&
         session.user.user_metadata &&
@@ -282,7 +279,6 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
   );
 };
 
-// Custom hook for using auth context
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthContextProvider");

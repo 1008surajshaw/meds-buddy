@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { User, Users, ArrowRight } from "lucide-react"
-import type { UserRole } from "@/types/types"
+import type { UserRole } from "@/types/type"
 
 interface RoleSelectorProps {
   onRoleSelect: (role: UserRole) => void

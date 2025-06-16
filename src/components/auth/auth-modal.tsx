@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, User, Users, Mail, CheckCircle } from "lucide-react"
-import type { UserRole } from "@/types/types"
+import type { UserRole } from "@/types/type"
 import { useAuth } from "@/context/AuthContext"
 
 interface AuthModalProps {

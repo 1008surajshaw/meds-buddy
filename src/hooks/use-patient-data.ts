@@ -49,7 +49,6 @@ export const usePatientData = (patientId: string | null) => {
 
       if (medsError) throw medsError
 
-      // Fetch recent activities (last 30 days)
       const thirtyDaysAgo = new Date()
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 

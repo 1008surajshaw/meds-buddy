@@ -249,9 +249,7 @@ export const PatientSelector = ({
               </Card>
             ))}
           </div>
-          <div>
-             <AdherenceDashboard patientIds={patients.map((p) => p.user_id)} />
-          </div>
+          
 
         </div>
       )}

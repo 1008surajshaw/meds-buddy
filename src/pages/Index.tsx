@@ -6,8 +6,7 @@ import PatientDashboard from "@/components/patients/PatientDashboard"
 import CaretakerDashboard from "@/components/catetaker/CaretakerDashboard"
 import { Button } from "@/components/ui/button"
 import { Users, User, LogOut, Loader2 } from "lucide-react"
-import type { UserRole } from "@/types/types"
-import { supabase } from "@/utils/supabase"
+import type { UserRole } from "@/types/type"
 import { useAuth } from "@/context/AuthContext"
 
 const Index = () => {
@@ -30,7 +29,6 @@ const Index = () => {
   useEffect(() =>{
     console.log(user, profile, loading)
   },[user, profile, loading])
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
@@ -41,8 +39,7 @@ const Index = () => {
       </div>
     )
   }
-
-  // Not authenticated - show role selector
+ 
   if (!user || !profile) {
     return (
       <>

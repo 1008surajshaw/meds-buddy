@@ -1,26 +1,26 @@
 import { describe, it, expect } from "vitest"
 
 // Test utility functions from auth context
+
 describe("Auth Utility Functions", () => {
   // Helper function to validate user role
+
   const isValidUserRole = (role: string): boolean => {
     return role === "patient" || role === "caretaker"
   }
 
   // Helper function to format user display name
+
   const formatUserDisplayName = (name: string | null, email: string): string => {
     if (name && name.trim().length > 0) {
       return name.trim()
     }
 
-    // Extract name from email if no name provided
     const emailPrefix = email.split("@")[0]
-    // Take only the part before the first dot for cleaner names
     const cleanPrefix = emailPrefix.split(".")[0]
     return cleanPrefix.charAt(0).toUpperCase() + cleanPrefix.slice(1)
   }
 
-  // Helper function to validate email format
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)

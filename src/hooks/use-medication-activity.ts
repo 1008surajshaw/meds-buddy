@@ -53,7 +53,6 @@ export const useMedicationActivity = (userId: string | null) => {
     if (!userId || medications.length === 0) return []
 
     try {
-      // Get today's activities
       const { data: activities, error } = await supabase
         .from("medication_activity")
         .select("*")
