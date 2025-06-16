@@ -63,7 +63,7 @@ Before you begin, ensure you have:
 
 ## ⚙️ Installation & Setup
 
-### 1️⃣ Clone the Repository
+### 1️ Clone the Repository
 
 ```bash
 git clone https://github.com/1008surajshaw/meds-buddy.git
@@ -76,13 +76,13 @@ npm install
 yarn install
 ```
 
-### 3. Environment Variables
+### 2. Environment Variables
 Create a `.env.local` file in the root directory:
 ```env
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+- `VITE_SUPABASE_URLL`: Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key
+
 ```
 
 ## 🗄️ Supabase Setup
